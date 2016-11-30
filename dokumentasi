@@ -1,0 +1,62 @@
+1. file .env
+    pada .env di DB_CONNECTION=mysql dihapus semua dan diganti DB_CONNECTION=sqlite
+
+2. membuat file kosong di database dengan nama database.sqlite
+    $ touch database/database.sqlite
+
+3. custom table pada database/migrations/2014_10_12_000000_create_users_table.php
+
+4. perbarui dgn commad $ php artisan migrate
+
+5. edit pada routes/api.php
+    //Endpoint untuk membuat user / register
+    Route::post('/users', 'UserController@createUser');
+
+6. buat UserController
+    $php artisan make:controller UserController
+
+7. tambahkan route pada routes/api.php
+  Route::get('/users', 'UserController@listUser');
+  Route::post('/users', 'UserController@createUser');
+
+
+7. tabahkan fungsi pada app/Http/Controllers/UserController.php
+    <?php
+
+    namespace App\Http\Controllers;
+
+    use Illuminate\Http\Request;
+    use App\User;
+    use Hash;
+
+    class UserController extends Controller
+    {
+        public function createUser(Request $request)
+        {
+          $user = new User();
+          $user->name = $request->name;
+          $user->phone = $request->phone;
+          $user->email = $request->email;
+          $user->password = Hash::make($request->password);
+          $user->save();
+
+          return [
+            'api_status' => 1,
+            'api_message' => 'User Registered',
+            'data' => [
+              'id' => $user->id,
+            ],
+          ];
+        }
+
+        public function listUser()
+        {
+          $users = User::all();
+
+          return [
+            'api_status' => 1,
+            'api_message' => 'OK',
+            'data' => $users
+          ];
+        }
+    }
